@@ -1,0 +1,46 @@
+name: Main
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Repack
+      id: build
+      run: |
+        mkdir out
+        xpfiles="META-INF/* customize.sh module.prop post-fs-data.sh service.sh xposed.apk"
+        xp89="XposedBridge.89.jar $xpfiles"
+        xp90="XposedBridge.90.jar $xpfiles"
+        zip -r out/xposed-sdk21.zip 21/* $xp89
+        zip -r out/xposed-sdk22.zip 22/* $xp89
+        zip -r out/xposed-sdk23.zip 23/* $xp89
+        zip -r out/xposed-sdk24.zip 24/* $xp89
+        zip -r out/xposed-sdk25.zip 25/* $xp89
+        zip -r out/xposed-sdk26.zip 26/* $xp90
+        zip -r out/xposed-sdk27.zip 27/* $xp90
+
+    - uses: marvinpinto/action-automatic-releases@latest
+      if: github.ref == 'refs/heads/main'
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "latest"
+        prerelease: false
+        title: "latest"
+        files: |
+          out/xposed-sdk21.zip
+          out/xposed-sdk22.zip
+          out/xposed-sdk23.zip
+          out/xposed-sdk24.zip
+          out/xposed-sdk25.zip
+          out/xposed-sdk26.zip
+          out/xposed-sdk27.zip
